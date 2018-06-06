@@ -1,0 +1,41 @@
+version: '2'
+
+services:
+  stats:
+    image: "matomo"
+    ports:
+      - 88:80
+    volumes:
+      - matomo:/var/www/html/config
+  parse-site-access:
+    build: .
+    image: "nouchka/matomologanalytics"
+    volumes:
+      - matomo:/var/www/html/config
+      - ./log/:/var/log/test/
+    environment:
+      - MATOMO_FILE=/var/log/test/access.log
+      - MATOMO_SITE=1
+    env_file:
+      - testing.env
+  parse-site-blog:
+    build: .
+    image: "nouchka/matomologanalytics"
+    volumes:
+      - matomo:/var/www/html/config
+      - ./log/:/var/log/test/
+    environment:
+      - MATOMO_FILE=/var/log/test/blog.log
+      - MATOMO_SITE=2
+    env_file:
+      - testing.env
+  db:
+    image: "mariadb"
+    env_file:
+      - testing.env
+    volumes:
+     - mariadb:/var/lib/mysql
+
+volumes:
+  mariadb:
+  matomo:
